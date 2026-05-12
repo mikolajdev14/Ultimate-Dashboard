@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ultimate Life Dashboard
+
+Nowoczesna aplikacja webowa/PWA do zarzadzania produktywnoscia, habitami,
+taskami, treningiem, finansami, celami i notatkami. UI jest inspirowany
+zalaczona referencja: ciemny, modularny dashboard z desktopowym sidebarem i
+mobilna dolna nawigacja.
+
+## Stack
+
+- Next.js App Router, React, TypeScript, Tailwind CSS
+- Supabase Auth/PostgreSQL/Realtime/Storage ready
+- Zustand, TanStack Query, React Hook Form, Zod
+- dnd-kit, Recharts, Lucide
+- next-pwa, manifest, offline fallback
 
 ## Getting Started
 
-First, run the development server:
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Supabase
+
+1. Copy `.env.example` to `.env.local` and add Supabase URL + anon key.
+2. Run `supabase/schema.sql` in your Supabase SQL editor.
+3. Enable email/social providers in Supabase Auth.
+4. Replace demo data in `src/lib/demo-data.ts` with TanStack Query calls backed by Supabase.
+
+## MVP Modules
+
+- Dashboard metrics and charts
+- Habits with streaks, heatmap and completion rate
+- Tasks/projects Kanban prepared for drag & drop
+- Workout planner with 1RM chart
+- Body metrics trend
+- Finance budgets and category chart
+- Goals, notes, analytics and settings-ready navigation
+- PWA install support and offline caching
+
+## Scripts
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run lint
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Next Steps
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Wire Supabase auth screens and authenticated app routes.
+- Add server actions for real inserts/updates.
+- Add push notification subscription flow.
+- Add CSV/JSON/PDF export UI.
+- Add tests for schemas, server actions and critical components.
