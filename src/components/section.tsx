@@ -23,11 +23,13 @@ export function Section({
 }) {
   return (
     <Card id={id} className={className}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div className="min-w-0">
           <CardTitle>{title}</CardTitle>
           {subtitle ? (
-            <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+            <p className="mt-1 text-xs leading-5 text-slate-500 sm:text-sm">
+              {subtitle}
+            </p>
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -40,7 +42,7 @@ export function Section({
           ) : null}
         </div>
       </div>
-      <div className="mt-5">{children}</div>
+      <div className="mt-4 sm:mt-5">{children}</div>
     </Card>
   );
 }

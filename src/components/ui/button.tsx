@@ -23,7 +23,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex h-10 items-center justify-center rounded-2xl px-4 text-sm font-semibold transition disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex h-11 items-center justify-center whitespace-nowrap rounded-2xl px-4 text-sm font-semibold transition disabled:pointer-events-none disabled:opacity-50 sm:h-10",
         variants[variant],
         className,
       )}

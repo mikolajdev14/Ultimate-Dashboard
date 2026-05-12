@@ -2,8 +2,8 @@
 
 import {
   Bell,
-  Command,
   Download,
+  LayoutGrid,
   Menu,
   MoonStar,
   Pause,
@@ -22,12 +22,13 @@ import { downloadBlob, toJson } from "@/lib/export";
 import { cn, currentYearMonth } from "@/lib/utils";
 import { useAppStore } from "@/stores/app-store";
 import { useDataStore } from "@/stores/data-store";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { QuickAddTaskModal } from "@/components/quick-add-task-modal";
 import { ToastDock } from "@/components/toast-dock";
 
 const VALID_MODULES = new Set(navItems.map((item) => item.label));
+
+const MOBILE_PRIMARY = ["Today", "Habits", "Tasks", "Workout"] as const;
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const activeModule = useAppStore((state) => state.activeModule);
@@ -60,6 +61,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const searchRef = useRef<HTMLInputElement | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -109,19 +111,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     if (!("Notification" in window)) return;
     if (Notification.permission !== "granted") return;
     const id = window.setInterval(() => {
-      const now = new Date();
-      const stamp = `${String(now.getHours()).padStart(2, "0")}:${String(
-        now.getMinutes(),
+      const current = new Date();
+      const stamp = `${String(current.getHours()).padStart(2, "0")}:${String(
+        current.getMinutes(),
       ).padStart(2, "0")}`;
-      const todayIso = now.toISOString().slice(0, 10);
+      const todayIso = current.toISOString().slice(0, 10);
       const storageKey = `habit-reminder:${todayIso}`;
       if (typeof sessionStorage !== "undefined") {
         if (sessionStorage.getItem(storageKey)) return;
       }
-      const due = habits.filter((habit) => {
-        if (habit.reminderTime && habit.reminderTime === stamp) return true;
-        return false;
-      });
+      const due = habits.filter(
+        (habit) => habit.reminderTime && habit.reminderTime === stamp,
+      );
       if (!due.length && habitReminderTime !== stamp) return;
       const undone = habits.filter(
         (habit) =>
@@ -280,11 +281,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="mt-8 rounded-3xl border border-violet-300/20 bg-violet-300/10 p-4">
-            <Badge tone="violet">PWA ready</Badge>
+            <p className="text-xs font-semibold uppercase tracking-wider text-violet-200">
+              PWA ready
+            </p>
             <p className="mt-3 text-sm font-semibold">Install on mobile</p>
             <p className="mt-1 text-xs leading-5 text-slate-400">
-              Dodaj do ekranu glownego, uzywaj jak aplikacji natywnej, bez Play
-              Store.
+              Dodaj do ekranu glownego, uzywaj jak aplikacji natywnej.
             </p>
             <Button
               variant="primary"
@@ -298,26 +300,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
-        <main className="flex min-w-0 flex-1 flex-col pb-28 lg:pb-0">
-          <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-[#060713]/80 px-4 py-3 backdrop-blur-xl sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setMobileNavOpen(true)}
-                  className="grid size-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] lg:hidden"
-                  aria-label="Otworz nawigacje"
-                >
-                  <Menu className="size-5" />
-                </button>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.35em] text-violet-200/70">
-                    Personal OS
-                  </p>
-                  <h1 className="text-xl font-semibold sm:text-2xl">
-                    {activeModule}
-                  </h1>
-                </div>
+        <main className="flex min-w-0 flex-1 flex-col pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:pb-0">
+          <header
+            className="sticky top-0 z-30 border-b border-white/[0.08] bg-[#060713]/85 backdrop-blur-xl"
+            style={{ paddingTop: "env(safe-area-inset-top)" }}
+          >
+            <div className="flex items-center gap-2 px-4 py-3 sm:gap-3 sm:px-6 lg:px-8">
+              <button
+                type="button"
+                onClick={() => setMobileNavOpen(true)}
+                className="grid size-10 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] lg:hidden"
+                aria-label="Otworz nawigacje"
+              >
+                <Menu className="size-5" />
+              </button>
+
+              <div className="min-w-0 flex-1">
+                <p className="hidden text-[10px] uppercase tracking-[0.35em] text-violet-200/70 sm:block">
+                  Personal OS
+                </p>
+                <h1 className="truncate text-base font-semibold sm:text-2xl">
+                  {activeModule}
+                </h1>
               </div>
 
               <label className="hidden min-w-64 items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-slate-300 md:flex">
@@ -326,114 +330,104 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   ref={searchRef}
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Szukaj modulu lub taska (klik /)"
+                  placeholder="Szukaj modulu lub taska (/)"
                   className="w-full bg-transparent text-sm outline-none placeholder:text-slate-500"
                 />
-                <Command className="ml-auto size-4 text-slate-500" />
               </label>
 
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="primary"
-                  className="hidden sm:inline-flex"
-                  onClick={openTaskQuickAdd}
-                >
-                  <Plus className="mr-2 size-4" />
-                  Quick add
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="hidden md:inline-flex"
-                  onClick={toggleTheme}
-                  aria-label="Zmien motyw"
-                >
-                  {theme === "dark" ? (
-                    <Sun className="size-4" />
-                  ) : (
-                    <MoonStar className="size-4" />
-                  )}
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="hidden lg:inline-flex"
-                  onClick={handleExport}
-                >
-                  <Download className="mr-2 size-4" />
-                  Export
-                </Button>
-                <button
-                  type="button"
-                  onClick={() => setActiveModule("Settings")}
-                  className="relative grid size-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.06]"
-                  aria-label="Powiadomienia"
-                >
-                  <Bell className="size-4" />
-                  <span className="absolute right-2 top-2 size-2 rounded-full bg-violet-300" />
-                </button>
-              </div>
-            </div>
+              <button
+                type="button"
+                onClick={() => setMobileSearchOpen(true)}
+                className="grid size-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] md:hidden"
+                aria-label="Szukaj"
+              >
+                <Search className="size-4" />
+              </button>
 
-            <button
-              type="button"
-              onClick={openTaskQuickAdd}
-              className="mt-3 flex w-full items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-slate-400 sm:hidden"
-            >
-              <Plus className="size-4" />
-              Quick add task
-            </button>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="hidden size-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] md:grid"
+                aria-label="Zmien motyw"
+              >
+                {theme === "dark" ? (
+                  <Sun className="size-4" />
+                ) : (
+                  <MoonStar className="size-4" />
+                )}
+              </button>
+
+              <Button
+                variant="primary"
+                className="hidden md:inline-flex"
+                onClick={openTaskQuickAdd}
+              >
+                <Plus className="mr-2 size-4" />
+                Quick add
+              </Button>
+
+              <Button
+                variant="ghost"
+                className="hidden lg:inline-flex"
+                onClick={handleExport}
+              >
+                <Download className="mr-2 size-4" />
+                Export
+              </Button>
+            </div>
 
             {focus ? (
               <button
                 type="button"
                 onClick={() => setActiveModule("Today")}
-                className="mt-3 flex w-full items-center justify-between gap-3 rounded-2xl border border-violet-300/30 bg-violet-500/10 px-3 py-2 text-sm"
+                className="mx-4 mb-3 flex items-center justify-between gap-3 rounded-2xl border border-violet-300/30 bg-violet-500/10 px-3 py-2 text-sm sm:mx-6 lg:mx-8"
               >
-                <span className="flex items-center gap-2 truncate">
-                  <Timer className="size-4 text-violet-200" />
+                <span className="flex min-w-0 items-center gap-2">
+                  <Timer className="size-4 shrink-0 text-violet-200" />
                   <span className="font-semibold tabular-nums">
                     {formatRemaining(focusRemaining)}
                   </span>
-                  <span className="truncate text-slate-300">
+                  <span className="min-w-0 truncate text-slate-300">
                     {focus.taskTitle ?? "Skupienie"}
                   </span>
                 </span>
-                <span className="flex items-center gap-1">
+                <span className="flex shrink-0 items-center gap-1">
                   {focus.paused ? (
-                    <button
-                      type="button"
+                    <span
+                      role="button"
                       onClick={(event) => {
                         event.stopPropagation();
                         resumeFocus();
                       }}
-                      className="grid size-7 place-items-center rounded-full bg-white/[0.1] hover:bg-white/[0.2]"
+                      className="grid size-8 place-items-center rounded-full bg-white/[0.1] hover:bg-white/[0.2]"
                       aria-label="Wznow"
                     >
                       <Play className="size-3.5" />
-                    </button>
+                    </span>
                   ) : (
-                    <button
-                      type="button"
+                    <span
+                      role="button"
                       onClick={(event) => {
                         event.stopPropagation();
                         pauseFocus();
                       }}
-                      className="grid size-7 place-items-center rounded-full bg-white/[0.1] hover:bg-white/[0.2]"
+                      className="grid size-8 place-items-center rounded-full bg-white/[0.1] hover:bg-white/[0.2]"
                       aria-label="Pauza"
                     >
                       <Pause className="size-3.5" />
-                    </button>
+                    </span>
                   )}
-                  <button
-                    type="button"
+                  <span
+                    role="button"
                     onClick={(event) => {
                       event.stopPropagation();
                       cancelFocus();
                     }}
-                    className="grid size-7 place-items-center rounded-full bg-white/[0.1] hover:bg-rose-500/40"
+                    className="grid size-8 place-items-center rounded-full bg-white/[0.1] hover:bg-rose-500/40"
                     aria-label="Zakoncz"
                   >
                     <X className="size-3.5" />
-                  </button>
+                  </span>
                 </span>
               </button>
             ) : null}
@@ -443,9 +437,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </main>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.08] bg-[#070816]/95 px-3 py-2 backdrop-blur-xl lg:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
-          {navItems.slice(0, 5).map((item) => {
+      <button
+        type="button"
+        onClick={openTaskQuickAdd}
+        className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-40 grid size-14 place-items-center rounded-full bg-violet-300 text-slate-950 shadow-[0_18px_45px_-12px_rgba(167,139,250,0.6)] transition active:scale-95 lg:hidden"
+        aria-label="Quick add task"
+      >
+        <Plus className="size-6" />
+      </button>
+
+      <nav
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.08] bg-[#070816]/95 backdrop-blur-xl lg:hidden"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <div className="mx-auto grid max-w-md grid-cols-5 gap-1 px-3 py-2">
+          {MOBILE_PRIMARY.map((label) => {
+            const item = navItems.find((entry) => entry.label === label);
+            if (!item) return null;
             const Icon = item.icon;
             const active = item.label === activeModule;
             return (
@@ -454,25 +462,105 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 type="button"
                 onClick={() => setActiveModule(item.label)}
                 className={cn(
-                  "flex flex-col items-center gap-1 rounded-2xl px-2 py-2 text-[10px]",
+                  "flex flex-col items-center gap-1 rounded-2xl py-2 text-[11px]",
                   active ? "bg-white/[0.09] text-white" : "text-slate-500",
                 )}
               >
-                <Icon className="size-4" />
+                <Icon className="size-5" />
                 {item.label.split(" ")[0]}
               </button>
             );
           })}
+          <button
+            type="button"
+            onClick={() => setMobileNavOpen(true)}
+            className={cn(
+              "flex flex-col items-center gap-1 rounded-2xl py-2 text-[11px]",
+              !MOBILE_PRIMARY.includes(
+                activeModule as (typeof MOBILE_PRIMARY)[number],
+              )
+                ? "bg-white/[0.09] text-white"
+                : "text-slate-500",
+            )}
+          >
+            <LayoutGrid className="size-5" />
+            Wiecej
+          </button>
         </div>
       </nav>
 
+      {mobileSearchOpen ? (
+        <div className="fixed inset-0 z-50 bg-slate-950/85 px-4 pt-[calc(env(safe-area-inset-top)+1rem)] backdrop-blur-md md:hidden">
+          <div className="flex items-center gap-2">
+            <div className="flex flex-1 items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] px-3 py-3">
+              <Search className="size-4 text-slate-400" />
+              <input
+                autoFocus
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Szukaj modulu lub taska"
+                className="w-full bg-transparent text-base outline-none placeholder:text-slate-500"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setMobileSearchOpen(false)}
+              className="grid size-11 place-items-center rounded-2xl border border-white/10 bg-white/[0.06]"
+              aria-label="Zamknij"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+          <p className="mt-4 text-xs uppercase tracking-wider text-slate-500">
+            Moduly
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {filteredNavItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => {
+                    setActiveModule(item.label);
+                    setMobileSearchOpen(false);
+                  }}
+                  className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-left"
+                >
+                  <Icon className="size-4 text-slate-400" />
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
       {mobileNavOpen ? (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md lg:hidden">
-          <div className="ml-auto h-full w-80 max-w-full bg-[#0c0f23] p-6">
+        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md lg:hidden">
+          <button
+            type="button"
+            onClick={() => setMobileNavOpen(false)}
+            className="absolute inset-0"
+            aria-label="Zamknij menu"
+          />
+          <div
+            className="relative ml-auto h-full w-full max-w-xs overflow-y-auto bg-[#0c0f23] p-5"
+            style={{
+              paddingTop: "calc(env(safe-area-inset-top) + 1.25rem)",
+              paddingBottom: "calc(env(safe-area-inset-bottom) + 1.25rem)",
+            }}
+          >
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-violet-200/70">
-                Menu
-              </p>
+              <div className="flex items-center gap-2">
+                <span className="grid size-9 place-items-center rounded-2xl bg-white text-slate-950">
+                  <Sparkles className="size-4" />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold">Ultimate</p>
+                  <p className="text-[11px] text-slate-500">Life Dashboard</p>
+                </div>
+              </div>
               <button
                 type="button"
                 onClick={() => setMobileNavOpen(false)}
@@ -482,6 +570,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <X className="size-4" />
               </button>
             </div>
+
             <nav className="mt-6 space-y-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -495,9 +584,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       setMobileNavOpen(false);
                     }}
                     className={cn(
-                      "flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm transition",
+                      "flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm transition",
                       active
-                        ? "bg-white/[0.09] text-white shadow-lg shadow-black/20"
+                        ? "bg-white/[0.09] text-white"
                         : "text-slate-400 hover:bg-white/[0.06] hover:text-white",
                     )}
                   >
@@ -507,18 +596,36 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 );
               })}
             </nav>
-            <div className="mt-6 flex flex-wrap gap-2">
+
+            <div className="mt-6 grid grid-cols-2 gap-2">
               <Button onClick={toggleTheme}>
                 {theme === "dark" ? (
                   <Sun className="mr-2 size-4" />
                 ) : (
                   <MoonStar className="mr-2 size-4" />
                 )}
-                {theme === "dark" ? "Jasny motyw" : "Ciemny motyw"}
+                {theme === "dark" ? "Jasny" : "Ciemny"}
               </Button>
               <Button onClick={handleExport}>
                 <Download className="mr-2 size-4" />
-                Eksport
+                Export
+              </Button>
+              <Button
+                onClick={() => {
+                  setActiveModule("Settings");
+                  setMobileNavOpen(false);
+                }}
+              >
+                <Bell className="mr-2 size-4" />
+                Powiadomienia
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleInstall}
+                disabled={!installPrompt}
+              >
+                <Smartphone className="mr-2 size-4" />
+                {installPrompt ? "Zainstaluj" : "PWA"}
               </Button>
             </div>
           </div>

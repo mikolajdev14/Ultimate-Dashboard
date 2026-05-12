@@ -32,11 +32,7 @@ import {
   weekdayShort,
 } from "@/lib/utils";
 import { useAppStore } from "@/stores/app-store";
-import {
-  useDataStore,
-  type Habit,
-  type HabitLog,
-} from "@/stores/data-store";
+import { useDataStore, type Habit, type HabitLog } from "@/stores/data-store";
 
 function startOfWeek(iso: string) {
   const date = new Date(iso);
@@ -95,9 +91,7 @@ function habitStats(habit: Habit, logs: HabitLog[]) {
   const completedInWindow = dueWindow.filter((date) => dates.has(date)).length;
   const completionRate = Math.min(
     100,
-    dueWindow.length
-      ? (completedInWindow / dueWindow.length) * 100
-      : 0,
+    dueWindow.length ? (completedInWindow / dueWindow.length) * 100 : 0,
   );
 
   const noteMap = new Map<string, string>();
@@ -115,7 +109,14 @@ function habitStats(habit: Habit, logs: HabitLog[]) {
   };
 }
 
-const colors = ["#a78bfa", "#22c55e", "#f97316", "#38bdf8", "#f43f5e", "#facc15"];
+const colors = [
+  "#a78bfa",
+  "#22c55e",
+  "#f97316",
+  "#38bdf8",
+  "#f43f5e",
+  "#facc15",
+];
 
 export function HabitsModule() {
   const habits = useDataStore((state) => state.habits);
@@ -130,15 +131,12 @@ export function HabitsModule() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null);
-  const [noteContext, setNoteContext] = useState<
-    | {
-        habitId: string;
-        habitTitle: string;
-        date: string;
-        current: string;
-      }
-    | null
-  >(null);
+  const [noteContext, setNoteContext] = useState<{
+    habitId: string;
+    habitTitle: string;
+    date: string;
+    current: string;
+  } | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
 
   const today = toIsoDate();
@@ -318,7 +316,7 @@ export function HabitsModule() {
                   key={habit.id}
                   className="overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.04]"
                 >
-                  <div className="grid gap-4 p-4 lg:grid-cols-[1fr_280px] lg:gap-6">
+                  <div className="grid gap-3 p-3 sm:gap-4 sm:p-4 lg:grid-cols-[1fr_280px] lg:gap-6">
                     <div className="space-y-4">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="flex items-start gap-3">
@@ -332,7 +330,9 @@ export function HabitsModule() {
                             />
                           </span>
                           <div>
-                            <p className="text-base font-semibold">{habit.title}</p>
+                            <p className="text-base font-semibold">
+                              {habit.title}
+                            </p>
                             <p className="text-xs text-slate-500">
                               {habit.cadence === "daily"
                                 ? habit.weekdays?.length
@@ -368,12 +368,12 @@ export function HabitsModule() {
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+                      <div className="grid grid-cols-[1fr_auto] gap-2 sm:flex sm:items-stretch">
                         <button
                           type="button"
                           onClick={() => toggleHabitLog(habit.id, today)}
                           className={cn(
-                            "flex flex-1 items-center justify-between gap-3 rounded-2xl border px-4 py-3 transition",
+                            "flex min-w-0 flex-1 items-center justify-between gap-2 rounded-2xl border px-3 py-3 text-left transition sm:gap-3 sm:px-4",
                             doneToday
                               ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-100"
                               : todayDue
@@ -381,10 +381,10 @@ export function HabitsModule() {
                                 : "border-dashed border-white/10 bg-white/[0.02] text-slate-400 hover:bg-white/[0.05]",
                           )}
                         >
-                          <span className="flex items-center gap-3">
+                          <span className="flex min-w-0 items-center gap-2 sm:gap-3">
                             <span
                               className={cn(
-                                "grid size-9 place-items-center rounded-full transition",
+                                "grid size-9 shrink-0 place-items-center rounded-full transition",
                                 doneToday
                                   ? "bg-emerald-400 text-slate-950"
                                   : "border border-white/15 bg-white/[0.04] text-slate-500",
@@ -392,32 +392,36 @@ export function HabitsModule() {
                             >
                               <Check className="size-4" />
                             </span>
-                            <span className="text-left">
+                            <span className="min-w-0 text-left">
                               <span className="block text-sm font-semibold">
                                 {doneToday
                                   ? "Zrobione dzis"
                                   : todayDue
-                                    ? "Oznacz jako zrobione"
+                                    ? "Oznacz dzis"
                                     : "Dzisiaj nie w planie"}
                               </span>
-                              <span className="block text-xs text-slate-400">
+                              <span className="block text-[11px] text-slate-400">
                                 {doneToday
                                   ? "Klik, aby cofnac"
                                   : formatShortDate(today)}
                               </span>
                             </span>
                           </span>
-                          <Badge tone={doneToday ? "green" : "neutral"}>
+                          <Badge
+                            tone={doneToday ? "green" : "neutral"}
+                            className="shrink-0"
+                          >
                             {Math.round(habit.completionRate)}%
                           </Badge>
                         </button>
-                        <Button
-                          variant="ghost"
+                        <button
+                          type="button"
                           onClick={() => openNote(habit, today, todayNote)}
+                          className="grid h-full place-items-center rounded-2xl border border-white/10 bg-white/[0.04] px-3 text-slate-300 hover:bg-white/[0.1]"
+                          aria-label="Notatka"
                         >
-                          <MessageSquare className="mr-2 size-4" />
-                          {todayNote ? "Edytuj notatke" : "Dodaj notatke"}
-                        </Button>
+                          <MessageSquare className="size-4" />
+                        </button>
                       </div>
 
                       {todayNote ? (
@@ -430,7 +434,7 @@ export function HabitsModule() {
                         <p className="mb-2 text-xs uppercase tracking-wider text-slate-500">
                           Ostatnie 7 dni
                         </p>
-                        <div className="grid grid-cols-7 gap-2">
+                        <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
                           {last7.map((date) => {
                             const done = habit.dates.has(date);
                             const isToday = date === today;
@@ -462,7 +466,9 @@ export function HabitsModule() {
                                     "border-violet-300/60 text-violet-100",
                                 )}
                                 style={
-                                  done ? { backgroundColor: habit.color } : undefined
+                                  done
+                                    ? { backgroundColor: habit.color }
+                                    : undefined
                                 }
                               >
                                 <span className="text-[10px] uppercase tracking-wider opacity-80">
@@ -493,7 +499,9 @@ export function HabitsModule() {
                         <Stat label="Streak" value={`${habit.streak}`} />
                         <Stat
                           label={
-                            habit.cadence === "weekly" ? "Tygodnie 12" : "Dni 30"
+                            habit.cadence === "weekly"
+                              ? "Tygodnie 12"
+                              : "Dni 30"
                           }
                           value={`${habit.completedInWindow}/${habit.dueCount}`}
                         />
@@ -529,7 +537,9 @@ export function HabitsModule() {
                                     : due
                                       ? "bg-white/[0.06] hover:bg-white/[0.12]"
                                       : "bg-white/[0.02]",
-                                  isToday && !done && "ring-1 ring-violet-300/60",
+                                  isToday &&
+                                    !done &&
+                                    "ring-1 ring-violet-300/60",
                                 )}
                                 style={
                                   done
@@ -618,7 +628,9 @@ export function HabitsModule() {
                                 : "bg-white/[0.06] text-slate-700 hover:bg-white/[0.12]",
                             )}
                             style={
-                              done ? { backgroundColor: habit.color } : undefined
+                              done
+                                ? { backgroundColor: habit.color }
+                                : undefined
                             }
                             title={`${habit.title} · ${date}${
                               note ? ` · ${note}` : ""
@@ -689,7 +701,9 @@ export function HabitsModule() {
                 <button
                   key={color}
                   type="button"
-                  onClick={() => setValue("color", color, { shouldDirty: true })}
+                  onClick={() =>
+                    setValue("color", color, { shouldDirty: true })
+                  }
                   className={cn(
                     "size-9 rounded-2xl border-2 transition",
                     selectedColor === color

@@ -190,7 +190,7 @@ export function DashboardOverview() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <section className="grid gap-4 xl:grid-cols-[1fr_360px]">
         <div className="space-y-4">
           <HeroSummary
@@ -204,7 +204,7 @@ export function DashboardOverview() {
             onOpenTasks={() => setActiveModule("Tasks")}
             onOpenFinance={() => setActiveModule("Finance")}
           />
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {heroMetrics.map((metric) => (
               <MetricCard
                 key={metric.label}
@@ -218,12 +218,14 @@ export function DashboardOverview() {
         <Card className="relative overflow-hidden bg-gradient-to-br from-violet-300/25 via-fuchsia-400/10 to-slate-950">
           <div className="absolute -right-16 -top-16 size-48 rounded-full bg-violet-300/30 blur-3xl" />
           <Badge tone="violet">Life portfolio</Badge>
-          <h2 className="mt-8 text-2xl font-semibold text-white">Twoje centrum</h2>
-          <p className="mt-2 max-w-xs text-sm leading-6 text-slate-300">
-            Habity, taski, trening, finanse i cele w jednym widoku. Wszystkie
-            dane zapisuja sie lokalnie i dzialaja offline jako PWA.
+          <h2 className="mt-6 text-xl font-semibold text-white sm:mt-8 sm:text-2xl">
+            Twoje centrum
+          </h2>
+          <p className="mt-2 max-w-xs text-xs leading-5 text-slate-300 sm:text-sm sm:leading-6">
+            Habity, taski, trening, finanse i cele w jednym widoku. Dane lokalne i
+            offline.
           </p>
-          <div className="mt-8 grid grid-cols-2 gap-3">
+          <div className="mt-5 grid grid-cols-2 gap-2 sm:mt-8 sm:gap-3">
             <Button
               variant="primary"
               onClick={() => setActiveModule("Workout")}
@@ -383,38 +385,39 @@ export function DashboardOverview() {
           ) : (
             <div className="space-y-2">
               {todayTasks.slice(0, 6).map((task) => (
-                <button
+                <div
                   key={task.id}
-                  type="button"
-                  onClick={() => setActiveModule("Tasks")}
-                  className="flex w-full items-center justify-between gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.04] p-3 text-left transition hover:bg-white/[0.08]"
+                  className="flex w-full items-center justify-between gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.04] p-3 transition hover:bg-white/[0.08]"
                 >
-                  <div className="min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => setActiveModule("Tasks")}
+                    className="min-w-0 flex-1 text-left"
+                  >
                     <p className="truncate text-sm font-medium">{task.title}</p>
                     <p className="text-xs text-slate-500">
                       {task.priority} · {task.status}
                     </p>
-                  </div>
+                  </button>
                   <Button
                     variant="primary"
-                    className="h-8 px-3 text-xs"
-                    onClick={(event) => {
-                      event.stopPropagation();
+                    className="h-9 px-3 text-xs sm:h-8"
+                    onClick={() =>
                       updateTask(task.id, {
                         status: task.status === "doing" ? "done" : "doing",
-                      });
-                    }}
+                      })
+                    }
                   >
                     {task.status === "doing" ? "Done" : "Doing"}
                   </Button>
-                </button>
+                </div>
               ))}
             </div>
           )}
         </Section>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Card
           className="cursor-pointer xl:col-span-1"
           onClick={() => setActiveModule("Workout")}
@@ -586,18 +589,17 @@ function HeroSummary({
 
   return (
     <Card className="overflow-hidden bg-gradient-to-br from-slate-950 via-slate-950 to-violet-950/40">
-      <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
         <div>
           <Badge tone="violet">{dateString}</Badge>
-          <h2 className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl">
+          <h2 className="mt-3 max-w-3xl text-2xl font-semibold tracking-tight sm:mt-5 sm:text-4xl xl:text-5xl">
             Czesc, {userName}.
           </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-400">
-            Wszystkie modu&#322;y s&#261; w pe&#322;ni edytowalne. Dane
-            zapisuj&#261; si&#281; lokalnie i dzia&#322;aj&#261; offline.
+          <p className="mt-2 max-w-2xl text-xs leading-5 text-slate-400 sm:mt-4 sm:text-sm sm:leading-6">
+            Modu&#322;y w pe&#322;ni edytowalne. Dane lokalne, dzia&#322;aj&#261; offline.
           </p>
         </div>
-        <div className="grid min-w-72 grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2 sm:min-w-72 sm:gap-3">
           <MiniStat
             icon={CheckCircle2}
             label="Habity"
@@ -637,11 +639,13 @@ function MiniStat({
     <button
       type="button"
       onClick={onClick}
-      className="rounded-3xl border border-white/[0.08] bg-white/[0.05] p-4 text-left transition hover:bg-white/[0.09]"
+      className="rounded-2xl border border-white/[0.08] bg-white/[0.05] p-3 text-left transition hover:bg-white/[0.09] sm:rounded-3xl sm:p-4"
     >
-      <Icon className="mb-5 size-5 text-violet-200" />
-      <p className="text-lg font-semibold">{value}</p>
-      <p className="text-xs text-slate-500">{label}</p>
+      <Icon className="mb-3 size-4 text-violet-200 sm:mb-5 sm:size-5" />
+      <p className="truncate text-base font-semibold tabular-nums sm:text-lg">
+        {value}
+      </p>
+      <p className="text-[11px] text-slate-500 sm:text-xs">{label}</p>
     </button>
   );
 }
@@ -664,18 +668,20 @@ function MetricCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "relative overflow-hidden rounded-[2rem] border border-white/[0.08] bg-gradient-to-br p-5 text-left shadow-2xl shadow-black/20 backdrop-blur transition hover:scale-[1.01]",
+        "relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br p-4 text-left shadow-xl shadow-black/20 backdrop-blur transition hover:scale-[1.01] sm:rounded-[2rem] sm:p-5",
         toneMap[metric.tone],
       )}
     >
       <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs text-slate-300/80">{metric.label}</p>
-          <p className="mt-3 text-3xl font-semibold text-white">{metric.value}</p>
+        <div className="min-w-0">
+          <p className="text-[11px] text-slate-300/80 sm:text-xs">{metric.label}</p>
+          <p className="mt-2 truncate text-2xl font-semibold text-white sm:mt-3 sm:text-3xl">
+            {metric.value}
+          </p>
         </div>
         <ArrowUpRight className="size-4 text-slate-300/70" />
       </div>
-      <div className="mt-5 h-20">
+      <div className="mt-3 h-16 sm:mt-5 sm:h-20">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={metric.data}>
             <Area
@@ -689,7 +695,7 @@ function MetricCard({
           </AreaChart>
         </ResponsiveContainer>
       </div>
-      <p className="mt-2 flex items-center gap-1 text-xs text-slate-300/80">
+      <p className="mt-1 flex items-center gap-1 text-[11px] text-slate-300/80 sm:mt-2 sm:text-xs">
         <TrendingUp className="size-3" />
         {metric.change}
       </p>

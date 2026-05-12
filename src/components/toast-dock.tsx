@@ -21,7 +21,7 @@ export function ToastDock() {
   const removeToast = useAppStore((state) => state.removeToast);
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-24 z-50 flex justify-center px-4 lg:bottom-6">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(7.5rem+env(safe-area-inset-bottom))] z-50 flex justify-center px-3 lg:bottom-6 lg:px-4">
       <div className="flex w-full max-w-md flex-col gap-2">
         {toasts.map((toast) => {
           const Icon = toneIcon[toast.tone];

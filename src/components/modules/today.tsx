@@ -191,9 +191,9 @@ export function TodayModule() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <Card className="overflow-hidden bg-gradient-to-br from-violet-500/25 via-slate-950 to-slate-950">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <Badge tone="violet">
               {new Date().toLocaleDateString("pl-PL", {
@@ -202,15 +202,14 @@ export function TodayModule() {
                 month: "long",
               })}
             </Badge>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:mt-4 sm:text-4xl">
               Dzisiaj liczy si&#281; tylko to.
             </h2>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300">
-              Trzy rzeczy o najwy&#380;szym priorytecie, kilka habit&oacute;w i
-              jeden trening. Bez przeci&#261;&#380;ania listy.
+            <p className="mt-2 max-w-xl text-xs leading-5 text-slate-300 sm:mt-3 sm:text-sm sm:leading-6">
+              Trzy rzeczy, kilka habit&oacute;w, jeden trening. Bez przeci&#261;&#380;ania listy.
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             <Stat label="Habity" value={`${habitsDone.length}/${dueToday.length}`} />
             <Stat label="Focus" value={`${focusToday} min`} />
             <Stat label="Priorytety" value={`${priorities.length}/3`} />
@@ -251,41 +250,19 @@ export function TodayModule() {
             {priorities.map((task, index) => (
               <div
                 key={task.id}
-                className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.04] p-3"
+                className="rounded-2xl border border-white/[0.08] bg-white/[0.04] p-3"
               >
-                <span className="grid size-9 place-items-center rounded-2xl bg-violet-500/20 text-sm font-semibold text-violet-100">
-                  {index + 1}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">{task.title}</p>
-                  <p className="text-xs text-slate-500">
-                    {task.priority} · {task.status}
-                    {task.dueDate ? ` · ${formatShortDate(task.dueDate)}` : ""}
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button
-                    variant="primary"
-                    className="h-9 text-xs"
-                    onClick={() =>
-                      handleStartFocus(defaultMinutes, task.id, task.title)
-                    }
-                    disabled={Boolean(focus)}
-                  >
-                    <Timer className="mr-2 size-3.5" />
-                    Focus {defaultMinutes}m
-                  </Button>
-                  <Button
-                    className="h-9 text-xs"
-                    onClick={() =>
-                      updateTask(task.id, {
-                        status:
-                          task.status === "doing" ? "done" : "doing",
-                      })
-                    }
-                  >
-                    {task.status === "doing" ? "Done" : "Doing"}
-                  </Button>
+                <div className="flex items-start gap-3">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-2xl bg-violet-500/20 text-sm font-semibold text-violet-100">
+                    {index + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold">{task.title}</p>
+                    <p className="text-xs text-slate-500">
+                      {task.priority} · {task.status}
+                      {task.dueDate ? ` · ${formatShortDate(task.dueDate)}` : ""}
+                    </p>
+                  </div>
                   <button
                     type="button"
                     onClick={() =>
@@ -293,7 +270,7 @@ export function TodayModule() {
                         pinnedForToday: !task.pinnedForToday,
                       })
                     }
-                    className="grid size-9 place-items-center rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.1]"
+                    className="grid size-9 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.1]"
                     aria-label="Przypnij/Odepnij"
                   >
                     {task.pinnedForToday ? (
@@ -302,6 +279,27 @@ export function TodayModule() {
                       <Pin className="size-3.5" />
                     )}
                   </button>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <Button
+                    variant="primary"
+                    onClick={() =>
+                      handleStartFocus(defaultMinutes, task.id, task.title)
+                    }
+                    disabled={Boolean(focus)}
+                  >
+                    <Timer className="mr-2 size-4" />
+                    Focus {defaultMinutes}m
+                  </Button>
+                  <Button
+                    onClick={() =>
+                      updateTask(task.id, {
+                        status: task.status === "doing" ? "done" : "doing",
+                      })
+                    }
+                  >
+                    {task.status === "doing" ? "Done" : "Doing"}
+                  </Button>
                 </div>
               </div>
             ))}
@@ -313,6 +311,7 @@ export function TodayModule() {
         <Section
           title="Focus timer"
           subtitle="Krotkie bloki skupienia powiazane z taskiem"
+          className="overflow-hidden"
         >
           {focus ? (
             <div className="rounded-3xl border border-violet-300/30 bg-violet-500/10 p-5">
@@ -470,7 +469,7 @@ export function TodayModule() {
             </div>
           )}
 
-          <div className="mt-4 grid grid-cols-7 gap-2">
+          <div className="mt-4 grid grid-cols-7 gap-1.5 sm:gap-2">
             {last7.map((date) => {
               const due = habits.filter((habit) =>
                 isHabitDueToday(habit.cadence, habit.weekdays, date),
@@ -478,7 +477,8 @@ export function TodayModule() {
               const ratio = due.length
                 ? Math.round(
                     (habitLogs.filter(
-                      (log) => log.date === date && due.some((h) => h.id === log.habitId),
+                      (log) =>
+                        log.date === date && due.some((h) => h.id === log.habitId),
                     ).length /
                       due.length) *
                       100,
@@ -487,10 +487,10 @@ export function TodayModule() {
               return (
                 <div
                   key={date}
-                  className="flex flex-col items-center gap-1 rounded-xl bg-white/[0.04] px-2 py-2 text-[10px] uppercase tracking-wider text-slate-400"
+                  className="flex flex-col items-center gap-1 rounded-xl bg-white/[0.04] px-1 py-2 text-[10px] uppercase tracking-wider text-slate-400"
                 >
                   <span>{weekdayShort(date)}</span>
-                  <span className="text-sm font-semibold text-slate-200">
+                  <span className="text-xs font-semibold text-slate-200 sm:text-sm">
                     {ratio}%
                   </span>
                 </div>
@@ -618,11 +618,11 @@ export function TodayModule() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.04] p-3 text-right">
+    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.04] p-2.5 sm:p-3">
       <p className="text-[10px] uppercase tracking-wider text-slate-500">
         {label}
       </p>
-      <p className="mt-1 flex items-center justify-end gap-1 text-lg font-semibold">
+      <p className="mt-1 flex items-center gap-1 text-base font-semibold tabular-nums sm:text-lg">
         <CheckCircle2 className="size-3.5 text-emerald-300" />
         {value}
       </p>

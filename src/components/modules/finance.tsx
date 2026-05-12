@@ -205,38 +205,43 @@ export function FinanceModule() {
         action="Nowy wydatek"
         onAction={openCreateExpense}
         headerExtra={
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1 rounded-2xl border border-white/10 bg-white/[0.04] px-2 py-1 text-sm">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+            <div className="order-first flex w-full items-center justify-between gap-1 rounded-2xl border border-white/10 bg-white/[0.04] px-2 py-1 text-sm sm:order-none sm:w-auto">
               <button
                 type="button"
                 onClick={() => setMonth(shiftYearMonth(month, -1))}
-                className="grid size-7 place-items-center rounded-xl hover:bg-white/[0.1]"
+                className="grid size-8 place-items-center rounded-xl hover:bg-white/[0.1]"
                 aria-label="Poprzedni miesiac"
               >
-                <ChevronLeft className="size-3.5" />
+                <ChevronLeft className="size-4" />
               </button>
-              <span className="px-2 capitalize">{formatMonthLabel(month)}</span>
+              <span className="px-2 text-sm font-medium capitalize">
+                {formatMonthLabel(month)}
+              </span>
               <button
                 type="button"
                 onClick={() => setMonth(shiftYearMonth(month, 1))}
-                className="grid size-7 place-items-center rounded-xl hover:bg-white/[0.1]"
+                className="grid size-8 place-items-center rounded-xl hover:bg-white/[0.1]"
                 aria-label="Nastepny miesiac"
               >
-                <ChevronRight className="size-3.5" />
+                <ChevronRight className="size-4" />
               </button>
             </div>
-            <Button onClick={handleGenerateRecurring}>
+            <Button onClick={handleGenerateRecurring} className="flex-1 sm:flex-none">
               <RefreshCcw className="mr-2 size-4" />
-              Generuj recurring
+              Recurring
             </Button>
-            <Button onClick={() => setCategoryModal(true)}>
+            <Button
+              onClick={() => setCategoryModal(true)}
+              className="flex-1 sm:flex-none"
+            >
               <WalletCards className="mr-2 size-4" />
               Kategorie
             </Button>
           </div>
         }
       >
-        <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
+        <div className="grid gap-3 sm:gap-4 lg:grid-cols-[320px_1fr]">
           <div className="rounded-3xl border border-white/[0.08] bg-white/[0.04] p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -303,7 +308,7 @@ export function FinanceModule() {
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {categories.map((category) => {
               const spent = spentByCategory.get(category.id) ?? 0;
               const ratio = category.budget
@@ -312,35 +317,40 @@ export function FinanceModule() {
               return (
                 <div
                   key={category.id}
-                  className="rounded-3xl border border-white/[0.08] bg-white/[0.04] p-4"
+                  className="rounded-2xl border border-white/[0.08] bg-white/[0.04] p-3 sm:rounded-3xl sm:p-4"
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex min-w-0 items-center gap-2">
                       <span
-                        className="inline-block size-3 rounded-full"
+                        className="inline-block size-3 shrink-0 rounded-full"
                         style={{ backgroundColor: category.color }}
                       />
-                      <p className="text-sm font-semibold">{category.name}</p>
+                      <p className="truncate text-sm font-semibold">
+                        {category.name}
+                      </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-slate-300">
-                        {formatCurrency(spent, currency)} /{" "}
-                        {formatCurrency(category.budget, currency)}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingCategory(category);
-                          setCategoryModal(true);
-                        }}
-                        className="grid size-8 place-items-center rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.1]"
-                        aria-label="Edytuj"
-                      >
-                        <Pencil className="size-3.5" />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingCategory(category);
+                        setCategoryModal(true);
+                      }}
+                      className="grid size-8 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.1]"
+                      aria-label="Edytuj"
+                    >
+                      <Pencil className="size-3.5" />
+                    </button>
                   </div>
-                  <Progress value={Math.min(100, ratio)} className="mt-3" />
+                  <div className="mt-2 flex items-center justify-between text-xs text-slate-300">
+                    <span>
+                      {formatCurrency(spent, currency)} /{" "}
+                      {formatCurrency(category.budget, currency)}
+                    </span>
+                    <span className="text-slate-500">
+                      {Math.round(Math.min(999, ratio))}%
+                    </span>
+                  </div>
+                  <Progress value={Math.min(100, ratio)} className="mt-2" />
                 </div>
               );
             })}
@@ -356,78 +366,145 @@ export function FinanceModule() {
               Brak wydatkow w tym miesiacu.
             </p>
           ) : (
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full min-w-[520px] text-left text-sm">
-                <thead className="text-xs uppercase tracking-wider text-slate-500">
-                  <tr>
-                    <th className="px-3 py-2">Data</th>
-                    <th className="px-3 py-2">Kategoria</th>
-                    <th className="px-3 py-2">Kwota</th>
-                    <th className="px-3 py-2">Notatka</th>
-                    <th className="px-3 py-2 text-right">Akcje</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[...monthExpenses]
-                    .sort((a, b) => b.date.localeCompare(a.date))
-                    .map((expense) => {
-                      const category = categories.find(
-                        (cat) => cat.id === expense.categoryId,
-                      );
-                      return (
-                        <tr
-                          key={expense.id}
-                          className="border-t border-white/[0.06] hover:bg-white/[0.04]"
-                        >
-                          <td className="px-3 py-2">{expense.date}</td>
-                          <td className="px-3 py-2">
-                            <span className="inline-flex items-center gap-2">
+            <>
+              <div className="mt-3 hidden overflow-x-auto sm:block">
+                <table className="w-full min-w-[520px] text-left text-sm">
+                  <thead className="text-xs uppercase tracking-wider text-slate-500">
+                    <tr>
+                      <th className="px-3 py-2">Data</th>
+                      <th className="px-3 py-2">Kategoria</th>
+                      <th className="px-3 py-2">Kwota</th>
+                      <th className="px-3 py-2">Notatka</th>
+                      <th className="px-3 py-2 text-right">Akcje</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...monthExpenses]
+                      .sort((a, b) => b.date.localeCompare(a.date))
+                      .map((expense) => {
+                        const category = categories.find(
+                          (cat) => cat.id === expense.categoryId,
+                        );
+                        return (
+                          <tr
+                            key={expense.id}
+                            className="border-t border-white/[0.06] hover:bg-white/[0.04]"
+                          >
+                            <td className="px-3 py-2">{expense.date}</td>
+                            <td className="px-3 py-2">
+                              <span className="inline-flex items-center gap-2">
+                                {category ? (
+                                  <span
+                                    className="inline-block size-2 rounded-full"
+                                    style={{ backgroundColor: category.color }}
+                                  />
+                                ) : null}
+                                {category?.name ?? "—"}
+                              </span>
+                            </td>
+                            <td className="px-3 py-2 font-semibold">
+                              {formatCurrency(expense.amount, currency)}
+                              {expense.recurring ? (
+                                <Badge tone="violet" className="ml-2">
+                                  rec
+                                </Badge>
+                              ) : null}
+                            </td>
+                            <td className="px-3 py-2 text-slate-400">
+                              {expense.note ?? "—"}
+                            </td>
+                            <td className="px-3 py-2">
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => openEditExpense(expense)}
+                                  className="grid size-8 place-items-center rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.1]"
+                                  aria-label="Edytuj"
+                                >
+                                  <Pencil className="size-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveExpense(expense.id)}
+                                  className="grid size-8 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-rose-200 hover:bg-rose-500/20"
+                                  aria-label="Usun"
+                                >
+                                  <Trash2 className="size-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+
+              <ul className="mt-3 space-y-2 sm:hidden">
+                {[...monthExpenses]
+                  .sort((a, b) => b.date.localeCompare(a.date))
+                  .map((expense) => {
+                    const category = categories.find(
+                      (cat) => cat.id === expense.categoryId,
+                    );
+                    return (
+                      <li
+                        key={expense.id}
+                        className="rounded-2xl border border-white/[0.08] bg-white/[0.04] p-3"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="text-base font-semibold">
+                              {formatCurrency(expense.amount, currency)}
+                              {expense.recurring ? (
+                                <Badge tone="violet" className="ml-2 align-middle">
+                                  rec
+                                </Badge>
+                              ) : null}
+                            </p>
+                            <p className="mt-1 flex items-center gap-2 text-xs text-slate-400">
                               {category ? (
                                 <span
                                   className="inline-block size-2 rounded-full"
                                   style={{ backgroundColor: category.color }}
                                 />
                               ) : null}
-                              {category?.name ?? "—"}
-                            </span>
-                          </td>
-                          <td className="px-3 py-2 font-semibold">
-                            {formatCurrency(expense.amount, currency)}
-                            {expense.recurring ? (
-                              <Badge tone="violet" className="ml-2">
-                                rec
-                              </Badge>
+                              <span className="truncate">
+                                {category?.name ?? "—"}
+                              </span>
+                              <span className="text-slate-600">·</span>
+                              <span>{expense.date.slice(5)}</span>
+                            </p>
+                            {expense.note ? (
+                              <p className="mt-2 text-xs text-slate-400">
+                                {expense.note}
+                              </p>
                             ) : null}
-                          </td>
-                          <td className="px-3 py-2 text-slate-400">
-                            {expense.note ?? "—"}
-                          </td>
-                          <td className="px-3 py-2">
-                            <div className="flex justify-end gap-2">
-                              <button
-                                type="button"
-                                onClick={() => openEditExpense(expense)}
-                                className="grid size-8 place-items-center rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.1]"
-                                aria-label="Edytuj"
-                              >
-                                <Pencil className="size-3.5" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveExpense(expense.id)}
-                                className="grid size-8 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-rose-200 hover:bg-rose-500/20"
-                                aria-label="Usun"
-                              >
-                                <Trash2 className="size-3.5" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                </tbody>
-              </table>
-            </div>
+                          </div>
+                          <div className="flex shrink-0 gap-1">
+                            <button
+                              type="button"
+                              onClick={() => openEditExpense(expense)}
+                              className="grid size-9 place-items-center rounded-xl border border-white/10 bg-white/[0.04]"
+                              aria-label="Edytuj"
+                            >
+                              <Pencil className="size-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveExpense(expense.id)}
+                              className="grid size-9 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-rose-200"
+                              aria-label="Usun"
+                            >
+                              <Trash2 className="size-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+              </ul>
+            </>
           )}
         </div>
       </Section>

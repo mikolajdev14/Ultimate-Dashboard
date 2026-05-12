@@ -256,19 +256,20 @@ export function WorkoutModule() {
           </div>
         }
       >
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
           <StatTile label="Sesje" value={`${sessions.length}`} />
           <StatTile
-            label="Objetosc total"
+            label="Objetosc"
             value={`${Math.round(totalVolume).toLocaleString("pl-PL")} ${settings.weightUnit}`}
           />
           <StatTile
             label="Rekord 1RM"
             value={
               prBars[0]
-                ? `${prBars[0].oneRm} ${settings.weightUnit} (${prBars[0].name})`
+                ? `${prBars[0].oneRm} ${settings.weightUnit}`
                 : "—"
             }
+            sublabel={prBars[0]?.name}
           />
         </div>
 
@@ -609,9 +610,9 @@ function SessionCard({
   }, null);
 
   return (
-    <div className="rounded-3xl border border-white/[0.08] bg-white/[0.04] p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
+    <div className="rounded-3xl border border-white/[0.08] bg-white/[0.04] p-3 sm:p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+        <div className="min-w-0">
           <p className="text-base font-semibold">{session.name}</p>
           <p className="mt-1 text-xs text-slate-500">
             {formatShortDate(session.date)} · {session.sets.length} serii ·{" "}
@@ -622,22 +623,22 @@ function SessionCard({
               {session.notes}
             </p>
           ) : null}
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
           {topSet ? (
-            <Badge tone="violet">
-              Top set: {topSet.reps}×{topSet.weight}
+            <Badge tone="violet" className="mt-2">
+              Top: {topSet.reps}×{topSet.weight}
               {weightUnit} · 1RM {epleyOneRepMax(topSet.weight, topSet.reps)}
               {weightUnit}
             </Badge>
           ) : null}
-          <Button variant="primary" onClick={onAddSet}>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="primary" onClick={onAddSet} className="flex-1 sm:flex-none">
             <Plus className="mr-2 size-4" />
             Seria
           </Button>
           <Button onClick={onEdit}>
-            <Pencil className="mr-2 size-4" />
-            Edytuj
+            <Pencil className="size-4 sm:mr-2" />
+            <span className="hidden sm:inline">Edytuj</span>
           </Button>
           <Button variant="danger" onClick={onRemove}>
             <Trash2 className="size-4" />
@@ -650,86 +651,159 @@ function SessionCard({
           Brak serii. Dodaj pierwsza seria w tej sesji.
         </p>
       ) : (
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[480px] text-left text-sm">
-            <thead className="text-xs uppercase tracking-wider text-slate-500">
-              <tr>
-                <th className="px-3 py-2">Cwiczenie</th>
-                <th className="px-3 py-2">Powt.</th>
-                <th className="px-3 py-2">Ciezar</th>
-                <th className="px-3 py-2">1RM</th>
-                <th className="px-3 py-2">RPE</th>
-                <th className="px-3 py-2 text-right">Akcje</th>
-              </tr>
-            </thead>
-            <tbody>
-              {session.sets.map((set) => {
-                const exercise = exerciseMap.get(set.exerciseId);
-                const setOneRm = epleyOneRepMax(set.weight, set.reps);
-                const isPr =
-                  setOneRm > 0 &&
-                  setOneRm >= (prByExercise.get(set.exerciseId) ?? 0);
-                return (
-                  <tr
-                    key={set.id}
-                    className="border-t border-white/[0.06] hover:bg-white/[0.04]"
-                  >
-                    <td className="px-3 py-2 font-medium">
-                      <span className="inline-flex items-center gap-2">
-                        {exercise?.name ?? "—"}
+        <>
+          <div className="mt-4 hidden overflow-x-auto sm:block">
+            <table className="w-full min-w-[480px] text-left text-sm">
+              <thead className="text-xs uppercase tracking-wider text-slate-500">
+                <tr>
+                  <th className="px-3 py-2">Cwiczenie</th>
+                  <th className="px-3 py-2">Powt.</th>
+                  <th className="px-3 py-2">Ciezar</th>
+                  <th className="px-3 py-2">1RM</th>
+                  <th className="px-3 py-2">RPE</th>
+                  <th className="px-3 py-2 text-right">Akcje</th>
+                </tr>
+              </thead>
+              <tbody>
+                {session.sets.map((set) => {
+                  const exercise = exerciseMap.get(set.exerciseId);
+                  const setOneRm = epleyOneRepMax(set.weight, set.reps);
+                  const isPr =
+                    setOneRm > 0 &&
+                    setOneRm >= (prByExercise.get(set.exerciseId) ?? 0);
+                  return (
+                    <tr
+                      key={set.id}
+                      className="border-t border-white/[0.06] hover:bg-white/[0.04]"
+                    >
+                      <td className="px-3 py-2 font-medium">
+                        <span className="inline-flex items-center gap-2">
+                          {exercise?.name ?? "—"}
+                          {isPr ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold text-amber-200">
+                              <Sparkles className="size-3" /> PR
+                            </span>
+                          ) : null}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2">{set.reps}</td>
+                      <td className="px-3 py-2">
+                        {set.weight}
+                        {weightUnit}
+                      </td>
+                      <td className="px-3 py-2 text-violet-200">
+                        {setOneRm}
+                        {weightUnit}
+                      </td>
+                      <td className="px-3 py-2">{set.rpe ?? "—"}</td>
+                      <td className="px-3 py-2">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => onEditSet(set)}
+                            className="grid size-8 place-items-center rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.1]"
+                            aria-label="Edytuj"
+                          >
+                            <Pencil className="size-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onRemoveSet(set.id)}
+                            className="grid size-8 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-rose-200 hover:bg-rose-500/20"
+                            aria-label="Usun"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <ul className="mt-4 space-y-2 sm:hidden">
+            {session.sets.map((set) => {
+              const exercise = exerciseMap.get(set.exerciseId);
+              const setOneRm = epleyOneRepMax(set.weight, set.reps);
+              const isPr =
+                setOneRm > 0 &&
+                setOneRm >= (prByExercise.get(set.exerciseId) ?? 0);
+              return (
+                <li
+                  key={set.id}
+                  className="rounded-2xl border border-white/[0.08] bg-white/[0.04] p-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-2 text-sm font-semibold">
+                        <span className="truncate">
+                          {exercise?.name ?? "—"}
+                        </span>
                         {isPr ? (
                           <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold text-amber-200">
                             <Sparkles className="size-3" /> PR
                           </span>
                         ) : null}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2">{set.reps}</td>
-                    <td className="px-3 py-2">
-                      {set.weight}
-                      {weightUnit}
-                    </td>
-                    <td className="px-3 py-2 text-violet-200">
-                      {setOneRm}
-                      {weightUnit}
-                    </td>
-                    <td className="px-3 py-2">{set.rpe ?? "—"}</td>
-                    <td className="px-3 py-2">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => onEditSet(set)}
-                          className="grid size-8 place-items-center rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.1]"
-                          aria-label="Edytuj"
-                        >
-                          <Pencil className="size-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => onRemoveSet(set.id)}
-                          className="grid size-8 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-rose-200 hover:bg-rose-500/20"
-                          aria-label="Usun"
-                        >
-                          <Trash2 className="size-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      </p>
+                      <p className="mt-1 text-xs text-slate-400">
+                        {set.reps} × {set.weight}
+                        {weightUnit} · 1RM{" "}
+                        <span className="text-violet-200">
+                          {setOneRm}
+                          {weightUnit}
+                        </span>
+                        {set.rpe ? ` · RPE ${set.rpe}` : ""}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 gap-1">
+                      <button
+                        type="button"
+                        onClick={() => onEditSet(set)}
+                        className="grid size-9 place-items-center rounded-xl border border-white/10 bg-white/[0.04]"
+                        aria-label="Edytuj"
+                      >
+                        <Pencil className="size-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onRemoveSet(set.id)}
+                        className="grid size-9 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-rose-200"
+                        aria-label="Usun"
+                      >
+                        <Trash2 className="size-4" />
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
     </div>
   );
 }
 
-function StatTile({ label, value }: { label: string; value: string }) {
+function StatTile({
+  label,
+  value,
+  sublabel,
+}: {
+  label: string;
+  value: string;
+  sublabel?: string;
+}) {
   return (
-    <div className="rounded-3xl border border-white/[0.08] bg-white/[0.04] p-4">
+    <div className="rounded-3xl border border-white/[0.08] bg-white/[0.04] p-3 sm:p-4">
       <p className="text-xs text-slate-500">{label}</p>
-      <p className="mt-2 text-2xl font-semibold">{value}</p>
+      <p className="mt-1.5 truncate text-xl font-semibold sm:mt-2 sm:text-2xl">
+        {value}
+      </p>
+      {sublabel ? (
+        <p className="mt-0.5 truncate text-[11px] text-slate-500">{sublabel}</p>
+      ) : null}
     </div>
   );
 }

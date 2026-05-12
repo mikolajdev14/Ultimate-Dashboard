@@ -187,42 +187,50 @@ export function TasksModule() {
         onAction={openTaskQuickAdd}
         headerExtra={
           <div className="flex flex-wrap gap-2">
-            <Button onClick={() => setTemplatesModal(true)}>
+            <Button
+              onClick={() => setTemplatesModal(true)}
+              className="flex-1 sm:flex-none"
+            >
               <LayoutTemplate className="mr-2 size-4" /> Szablony
             </Button>
-            <Button onClick={() => setProjectModal(true)}>
+            <Button
+              onClick={() => setProjectModal(true)}
+              className="flex-1 sm:flex-none"
+            >
               <Plus className="mr-2 size-4" /> Projekty
             </Button>
           </div>
         }
       >
-        <div className="mb-4 grid gap-2 sm:grid-cols-[1fr_180px_180px]">
+        <div className="mb-3 space-y-2 sm:mb-4 sm:grid sm:grid-cols-[1fr_180px_180px] sm:gap-2 sm:space-y-0">
           <Input
             value={effectiveQuery}
             onChange={(event) => setLocalQuery(event.target.value)}
             placeholder="Szukaj po tytule..."
           />
-          <Select
-            value={filterProject}
-            onChange={(event) => setFilterProject(event.target.value)}
-          >
-            <option value="all">Wszystkie projekty</option>
-            <option value="none">Bez projektu</option>
-            {projects.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </Select>
-          <Select
-            value={filterPriority}
-            onChange={(event) => setFilterPriority(event.target.value)}
-          >
-            <option value="all">Wszystkie priorytety</option>
-            <option value="high">Wysoki</option>
-            <option value="medium">Sredni</option>
-            <option value="low">Niski</option>
-          </Select>
+          <div className="grid grid-cols-2 gap-2 sm:contents">
+            <Select
+              value={filterProject}
+              onChange={(event) => setFilterProject(event.target.value)}
+            >
+              <option value="all">Projekty</option>
+              <option value="none">Bez projektu</option>
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </Select>
+            <Select
+              value={filterPriority}
+              onChange={(event) => setFilterPriority(event.target.value)}
+            >
+              <option value="all">Priorytety</option>
+              <option value="high">Wysoki</option>
+              <option value="medium">Sredni</option>
+              <option value="low">Niski</option>
+            </Select>
+          </div>
         </div>
 
         <DndContext sensors={sensors} onDragEnd={handleDragEnd}>

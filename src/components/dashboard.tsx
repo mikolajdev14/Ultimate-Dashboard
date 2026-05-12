@@ -18,7 +18,7 @@ export function Dashboard() {
   const activeModule = useAppStore((state) => state.activeModule);
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+    <div className="space-y-4 px-3 py-4 sm:space-y-6 sm:px-6 sm:py-6 lg:p-8">
       {renderModule(activeModule)}
     </div>
   );
